@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox FFlags Config Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .preset-btn {
+            background: #667eea;
+            color: white;
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .preset-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .preset-btn.active {
+            background: #764ba2;
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.6);
+        }
+        
+        .flag-group {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .flag-title {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .flag-description {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .flag-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        input[type="range"], input[type="number"], input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.95em;
+            flex: 1;
+        }
+        
+        input[type="range"] {
+            cursor: pointer;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .value-display {
+            background: #e9ecef;
+            padding: 8px 12px;
+            border-radius: 4px;
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .preview-section {
+            grid-column: 1 / -1;
+        }
+        
+        .preview-section h2 {
+            margin-top: 20px;
+        }
+        
+        #jsonPreview {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+        
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .export-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            flex: 1;
+            min-width: 150px;
+            font-size: 1em;
+        }
+        
+        .export-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .copy-btn {
+            background: #17a2b8;
+            color: white;
+            padding: 12px 24px;
+        }
+        
+        .copy-btn:hover {
+            background: #138496;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .category-tab {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .category-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .flag-category {
+            display: none;
+        }
+        
+        .flag-category.active {
+            display: block;
+        }
+        
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+            padding: 10px 20px;
+        }
+        
+        .reset-btn:hover {
+            background: #c82333;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 6px;
+            color: #0c5460;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .flag-count {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Roblox FFlags Config Generator</h1>
+            <p>Buat custom config untuk Roblox performance optimal - Community Tools</p>
+        </header>
+        
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="section">
+                <h2>Preset & Control</h2>
+                
+                <div class="preset-buttons">
+                    <button class="preset-btn active" onclick="loadPreset('balanced')">⚖️ Balanced</button>
+                    <button class="preset-btn" onclick="loadPreset('lowspec')">🐢 Low-Spec</button>
+                    <button class="preset-btn" onclick="loadPreset('highend')">🚀 High-End</button>
+                    <button class="preset-btn" onclick="loadPreset('fps')">⚡ Max FPS</button>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 Info:</strong> Config ini hanya untuk performa & visual. Jangan gunakan untuk exploit/cheat!
+                </div>
+                
+                <div class="category-tabs">
+                    <div class="category-tab active" onclick="switchCategory('rendering')">🎨 Rendering</div>
+                    <div class="category-tab" onclick="switchCategory('performance')">⚡ Performance</div>
+                    <div class="category-tab" onclick="switchCategory('lighting')">💡 Lighting</div>
+                    <div class="category-tab" onclick="switchCategory('advanced')">🔧 Advanced</div>
+                </div>
+                
+                <!-- RENDERING CATEGORY -->
+                <div id="rendering" class="flag-category active">
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FFlagDebugDisplayFPS
+                            <span class="flag-count">Display</span>
+                        </div>
+                        <div class="flag-description">Tampilkan FPS counter di game</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="FFlagDebugDisplayFPS" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            DFIntTextureQualityOverride
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Kualitas tekstur (0=terendah, 3=tertinggi)</div>
+                        <div class="flag-input">
+                            <input type="range" id="DFIntTextureQualityOverride" min="0" max="3" value="1" onchange="updatePreview()">
+                            <div class="value-display" id="val-DFIntTextureQualityOverride">1</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            DFIntDebugFRMQualityLevelOverride
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Kualitas render keseluruhan (1=low, 4=high)</div>
+                        <div class="flag-input">
+                            <input type="range" id="DFIntDebugFRMQualityLevelOverride" min="1" max="4" value="1" onchange="updatePreview()">
+                            <div class="value-display" id="val-DFIntDebugFRMQualityLevelOverride">1</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PERFORMANCE CATEGORY -->
+                <div id="performance" class="flag-category">
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            DFIntTaskSchedulerTargetFps
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Target FPS (0=unlimited, 60-240 recommended)</div>
+                        <div class="flag-input">
+                            <input type="number" id="DFIntTaskSchedulerTargetFps" value="60" min="0" max="9999" onchange="updatePreview()">
+                            <div class="value-display" id="val-DFIntTaskSchedulerTargetFps">60</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FIntTaskSchedulerThreadMin
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Minimum threads (2-8 recommended)</div>
+                        <div class="flag-input">
+                            <input type="range" id="FIntTaskSchedulerThreadMin" min="1" max="16" value="2" onchange="updatePreview()">
+                            <div class="value-display" id="val-FIntTaskSchedulerThreadMin">2</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FFlagTaskSchedulerLimitTargetFpsTo2402
+                            <span class="flag-count">Bool</span>
+                        </div>
+                        <div class="flag-description">Unlock FPS cap (matikan untuk unlimited)</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="FFlagTaskSchedulerLimitTargetFpsTo2402" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- LIGHTING CATEGORY -->
+                <div id="lighting" class="flag-category">
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FIntRenderShadowIntensity
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Intensitas shadow & lighting (0=off, 100=max)</div>
+                        <div class="flag-input">
+                            <input type="range" id="FIntRenderShadowIntensity" min="0" max="100" value="50" onchange="updatePreview()">
+                            <div class="value-display" id="val-FIntRenderShadowIntensity">50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FFlagDisablePostFx
+                            <span class="flag-count">Bool</span>
+                        </div>
+                        <div class="flag-description">Disable post-processing effects (boost FPS)</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="FFlagDisablePostFx" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FFlagDebugSkyGray
+                            <span class="flag-count">Bool</span>
+                        </div>
+                        <div class="flag-description">Ubah sky ke gray (performa lebih baik)</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="FFlagDebugSkyGray" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- ADVANCED CATEGORY -->
+                <div id="advanced" class="flag-category">
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            DFFlagDebugRenderForceTechnologyVoxel
+                            <span class="flag-count">Bool</span>
+                        </div>
+                        <div class="flag-description">Force voxel rendering (untuk low-spec)</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="DFFlagDebugRenderForceTechnologyVoxel" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            DFIntMaxFrameBufferSize
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">Frame buffer size (4=stable, lebih tinggi=lag)</div>
+                        <div class="flag-input">
+                            <input type="range" id="DFIntMaxFrameBufferSize" min="1" max="10" value="4" onchange="updatePreview()">
+                            <div class="value-display" id="val-DFIntMaxFrameBufferSize">4</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FIntDebugForceMSAASamples
+                            <span class="flag-count">Int</span>
+                        </div>
+                        <div class="flag-description">MSAA samples (0=off, 4=max quality)</div>
+                        <div class="flag-input">
+                            <input type="range" id="FIntDebugForceMSAASamples" min="0" max="4" value="0" onchange="updatePreview()">
+                            <div class="value-display" id="val-FIntDebugForceMSAASamples">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flag-group">
+                        <div class="flag-title">
+                            FFlagGlobalWindActivated
+                            <span class="flag-count">Bool</span>
+                        </div>
+                        <div class="flag-description">Enable wind effects</div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="FFlagGlobalWindActivated" onchange="updatePreview()">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px;">
+                    <button class="reset-btn" onclick="resetConfig()">🔄 Reset ke Default</button>
+                </div>
+            </div>
+            
+            <!-- Preview Section -->
+            <div class="section preview-section">
+                <h2>JSON Preview & Export</h2>
+                <div id="jsonPreview">{}</div>
+                
+                <div class="export-buttons">
+                    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy JSON</button>
+                    <button class="export-btn" onclick="downloadJSON()">📥 Download .JSON</button>
+                    <button class="export-btn" onclick="downloadTXT()">📄 Download .TXT</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const presets = {
+            balanced: {
+                FFlagDebugDisplayFPS: false,
+                DFIntTextureQualityOverride: 1,
+                DFIntDebugFRMQualityLevelOverride: 2,
+                DFIntTaskSchedulerTargetFps: 60,
+                FIntTaskSchedulerThreadMin: 2,
+                FFlagTaskSchedulerLimitTargetFpsTo2402: false,
+                FIntRenderShadowIntensity: 50,
+                FFlagDisablePostFx: false,
+                FFlagDebugSkyGray: false,
+                DFFlagDebugRenderForceTechnologyVoxel: false,
+                DFIntMaxFrameBufferSize: 4,
+                FIntDebugForceMSAASamples: 0,
+                FFlagGlobalWindActivated: false
+            },
+            lowspec: {
+                FFlagDebugDisplayFPS: true,
+                DFIntTextureQualityOverride: 0,
+                DFIntDebugFRMQualityLevelOverride: 1,
+                DFIntTaskSchedulerTargetFps: 60,
+                FIntTaskSchedulerThreadMin: 3,
+                FFlagTaskSchedulerLimitTargetFpsTo2402: true,
+                FIntRenderShadowIntensity: 0,
+                FFlagDisablePostFx: true,
+                FFlagDebugSkyGray: true,
+                DFFlagDebugRenderForceTechnologyVoxel: true,
+                DFIntMaxFrameBufferSize: 4,
+                FIntDebugForceMSAASamples: 0,
+                FFlagGlobalWindActivated: false
+            },
+            highend: {
+                FFlagDebugDisplayFPS: true,
+                DFIntTextureQualityOverride: 3,
+                DFIntDebugFRMQualityLevelOverride: 4,
+                DFIntTaskSchedulerTargetFps: 144,
+                FIntTaskSchedulerThreadMin: 4,
+                FFlagTaskSchedulerLimitTargetFpsTo2402: true,
+                FIntRenderShadowIntensity: 100,
+                FFlagDisablePostFx: false,
+                FFlagDebugSkyGray: false,
+                DFFlagDebugRenderForceTechnologyVoxel: false,
+                DFIntMaxFrameBufferSize: 4,
+                FIntDebugForceMSAASamples: 4,
+                FFlagGlobalWindActivated: true
+            },
+            fps: {
+                FFlagDebugDisplayFPS: true,
+                DFIntTextureQualityOverride: 0,
+                DFIntDebugFRMQualityLevelOverride: 1,
+                DFIntTaskSchedulerTargetFps: 9999,
+                FIntTaskSchedulerThreadMin: 8,
+                FFlagTaskSchedulerLimitTargetFpsTo2402: true,
+                FIntRenderShadowIntensity: 0,
+                FFlagDisablePostFx: true,
+                FFlagDebugSkyGray: true,
+                DFFlagDebugRenderForceTechnologyVoxel: true,
+                DFIntMaxFrameBufferSize: 4,
+                FIntDebugForceMSAASamples: 0,
+                FFlagGlobalWindActivated: false
+            }
+        };
+        
+        function loadPreset(preset) {
+            const config = presets[preset];
+            Object.keys(config).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = config[key];
+                    } else {
+                        element.value = config[key];
+                        updateValueDisplay(key);
+                    }
+                }
+            });
+            
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updatePreview();
+        }
+        
+        function switchCategory(category) {
+            document.querySelectorAll('.flag-category').forEach(cat => cat.classList.remove('active'));
+            document.getElementById(category).classList.add('active');
+            
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function updateValueDisplay(id) {
+            const element = document.getElementById(id);
+            const display = document.getElementById('val-' + id);
+            if (display) {
+                display.textContent = element.value;
+            }
+        }
+        
+        function updatePreview() {
+            const config = {};
+            
+            // Get all inputs
+            document.querySelectorAll('input[id]').forEach(input => {
+                if (input.id && input.id !== '') {
+                    if (input.type === 'checkbox') {
+                        if (input.checked) {
+                            config[input.id] = 'True';
+                        } else {
+                            config[input.id] = 'False';
+                        }
+                    } else if (input.type === 'range' || input.type === 'number') {
+                        const value = parseInt(input.value);
+                        config[input.id] = value.toString();
+                        updateValueDisplay(input.id);
+                    }
+                }
+            });
+            
+            const jsonString = JSON.stringify(config, null, 2);
+            document.getElementById('jsonPreview').textContent = jsonString;
+        }
+        
+        function getConfig() {
+            const config = {};
+            document.querySelectorAll('input[id]').forEach(input => {
+                if (input.id && input.id !== '') {
+                    if (input.type === 'checkbox') {
+                        config[input.id] = input.checked ? 'True' : 'False';
+                    } else if (input.type === 'range' || input.type === 'number') {
+                        config[input.id] = input.value;
+                    }
+                }
+            });
+            return config;
+        }
+        
+        function copyToClipboard() {
+            const json = document.getElementById('jsonPreview').textContent;
+            navigator.clipboard.writeText(json).then(() => {
+                alert('✅ JSON copied ke clipboard!');
+            });
+        }
+        
+        function downloadJSON() {
+            const config = getConfig();
+            const json = JSON.stringify(config, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            downloadFile(blob, 'ClientAppSettings.json');
+        }
+        
+        function downloadTXT() {
+            const config = getConfig();
+            const json = JSON.stringify(config, null, 2);
+            const blob = new Blob([json], { type: 'text/plain' });
+            downloadFile(blob, 'fflags-config.txt');
+        }
+        
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('✅ File ' + filename + ' downloaded!');
+        }
+        
+        function resetConfig() {
+            if (confirm('Reset semua settings ke default?')) {
+                loadPreset('balanced');
+            }
+        }
+        
+        // Initial load
+        window.addEventListener('load', () => {
+            loadPreset('balanced');
+        });
+        
+        // Update preview saat ada perubahan
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', updatePreview);
+            input.addEventListener('input', updatePreview);
+        });
+    </script>
+</body>
+</html>
